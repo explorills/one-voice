@@ -2,7 +2,7 @@
   "name": "one-voice",
   "displayName": "ONE voice",
   "description": "Voice-to-text transcription powered by OpenAI Whisper. Record speech, clean up grammar with GPT, and output to editor, clipboard, or terminal.",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "publisher": "expl-one",
   "license": "MIT",
   "icon": "media/icon.png",
