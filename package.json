@@ -1,0 +1,107 @@
+{
+  "name": "one-voice",
+  "displayName": "ONE Voice",
+  "description": "Voice-to-text transcription powered by OpenAI Whisper. Record audio and insert transcribed text at your cursor.",
+  "version": "0.1.0",
+  "publisher": "expl-one",
+  "license": "MIT",
+  "icon": "media/icon.png",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/explorills/one-voice"
+  },
+  "bugs": {
+    "url": "https://github.com/explorills/one-voice/issues"
+  },
+  "homepage": "https://github.com/explorills/one-voice#readme",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "keywords": [
+    "voice",
+    "speech-to-text",
+    "whisper",
+    "transcription",
+    "dictation",
+    "openai"
+  ],
+  "activationEvents": [],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "one-voice.toggleRecording",
+        "title": "ONE Voice: Toggle Recording",
+        "icon": "$(mic)"
+      }
+    ],
+    "keybindings": [
+      {
+        "command": "one-voice.toggleRecording",
+        "key": "Pause",
+        "when": "editorTextFocus"
+      }
+    ],
+    "configuration": {
+      "title": "ONE Voice",
+      "properties": {
+        "one-voice.apiKey": {
+          "type": "string",
+          "default": "",
+          "markdownDescription": "OpenAI API key for Whisper transcription. If empty, falls back to `OPENAI_API_KEY` environment variable.",
+          "order": 1
+        },
+        "one-voice.model": {
+          "type": "string",
+          "default": "whisper-1",
+          "enum": [
+            "whisper-1",
+            "gpt-4o-transcribe"
+          ],
+          "markdownDescription": "Transcription model to use.",
+          "order": 2
+        },
+        "one-voice.language": {
+          "type": "string",
+          "default": "en",
+          "markdownDescription": "Language code for transcription ([ISO 639-1](https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes)). Examples: `en`, `es`, `fr`, `de`, `ja`.",
+          "order": 3
+        },
+        "one-voice.maxDuration": {
+          "type": "number",
+          "default": 300,
+          "minimum": 10,
+          "maximum": 600,
+          "markdownDescription": "Maximum recording duration in seconds (safety limit). Default: 300 (5 minutes).",
+          "order": 4
+        },
+        "one-voice.soxPath": {
+          "type": "string",
+          "default": "sox",
+          "markdownDescription": "Path to the `sox` binary. Default uses PATH lookup.",
+          "order": 5
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run build",
+    "build": "node esbuild.js --production",
+    "watch": "node esbuild.js --watch",
+    "lint": "tsc --noEmit",
+    "package": "npx @vscode/vsce package",
+    "publish": "npx @vscode/vsce publish"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.85.0",
+    "@types/node": "^20.0.0",
+    "esbuild": "^0.25.0",
+    "typescript": "~5.7.0"
+  },
+  "dependencies": {
+    "form-data": "^4.0.0"
+  }
+}
