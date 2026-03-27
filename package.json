@@ -1,8 +1,8 @@
 {
   "name": "one-voice",
-  "displayName": "ONE Voice",
-  "description": "Voice-to-text transcription powered by OpenAI Whisper. Record audio and insert transcribed text at your cursor.",
-  "version": "0.1.0",
+  "displayName": "ONE voice",
+  "description": "Voice-to-text transcription powered by OpenAI Whisper. Record speech, clean up grammar with GPT, and output to editor, clipboard, or terminal.",
+  "version": "0.2.0",
   "publisher": "expl-one",
   "license": "MIT",
   "icon": "media/icon.png",
@@ -26,27 +26,36 @@
     "whisper",
     "transcription",
     "dictation",
-    "openai"
+    "openai",
+    "clipboard",
+    "grammar"
   ],
-  "activationEvents": [],
+  "activationEvents": ["onStartupFinished"],
   "main": "./dist/extension.js",
   "contributes": {
     "commands": [
       {
         "command": "one-voice.toggleRecording",
-        "title": "ONE Voice: Toggle Recording",
+        "title": "ONE voice: Toggle Recording",
         "icon": "$(mic)"
+      },
+      {
+        "command": "one-voice.changeKeybinding",
+        "title": "ONE voice: Change Keyboard Shortcut"
       }
     ],
     "keybindings": [
       {
         "command": "one-voice.toggleRecording",
-        "key": "Pause",
-        "when": "editorTextFocus"
+        "key": "pausebreak"
+      },
+      {
+        "command": "one-voice.toggleRecording",
+        "key": "ctrl+shift+r"
       }
     ],
     "configuration": {
-      "title": "ONE Voice",
+      "title": "ONE voice",
       "properties": {
         "one-voice.apiKey": {
           "type": "string",
@@ -56,12 +65,12 @@
         },
         "one-voice.model": {
           "type": "string",
-          "default": "whisper-1",
+          "default": "gpt-4o-transcribe",
           "enum": [
             "whisper-1",
             "gpt-4o-transcribe"
           ],
-          "markdownDescription": "Transcription model to use.",
+          "markdownDescription": "Whisper transcription model.",
           "order": 2
         },
         "one-voice.language": {
@@ -70,19 +79,59 @@
           "markdownDescription": "Language code for transcription ([ISO 639-1](https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes)). Examples: `en`, `es`, `fr`, `de`, `ja`.",
           "order": 3
         },
+        "one-voice.outputTarget": {
+          "type": "string",
+          "default": "clipboard",
+          "enum": [
+            "editor",
+            "clipboard",
+            "terminal"
+          ],
+          "enumDescriptions": [
+            "Insert transcribed text at cursor position in the active editor",
+            "Copy transcribed text to clipboard (paste anywhere with Ctrl+V)",
+            "Type transcribed text into the active terminal (does not press Enter)"
+          ],
+          "markdownDescription": "Where to send the transcribed text after processing.",
+          "order": 4
+        },
+        "one-voice.keybinding": {
+          "type": "null",
+          "markdownDescription": "Default: `Ctrl+Shift+R` and `Pause/Break`. To change, run command **ONE voice: Change Keyboard Shortcut** from the Command Palette (`Ctrl+Shift+P`), or [open Keyboard Shortcuts directly](command:one-voice.changeKeybinding).",
+          "order": 5
+        },
+        "one-voice.grammarCleanup": {
+          "type": "boolean",
+          "default": false,
+          "markdownDescription": "Post-process transcription with GPT to fix grammar, punctuation, filler words, and broken sentences while preserving your original wording. Adds ~1-2 seconds and ~$0.001 per transcription.",
+          "order": 6
+        },
+        "one-voice.grammarModel": {
+          "type": "string",
+          "default": "gpt-4o-mini",
+          "markdownDescription": "GPT model for grammar cleanup. `gpt-4o-mini` is fast and cheap. Use `gpt-4o` for higher quality at higher cost.",
+          "order": 7
+        },
+        "one-voice.grammarPrompt": {
+          "type": "string",
+          "default": "Restrictions To ChatGPT:\n\n1) No Conversations!\n\n2) No Explanations!\n\nChatGPT Instructions:\n\n1) Imagine if a user wrote their prompt-input with \"Grammar and fluent check:\" in the beginning, how would you behave, so do now, but the user will not enter \"Grammar and fluent check:\". You have to imagine that it has in the beginning in every user's prompt.\n\nAnd therefore you provide next content:\n\nOriginal input - grammatically corrected and fluently adjusted (Without any explanations, introductions etc.)\n\n2) No headers or anything for your grammatically corrected and fluently adjusted sentence, just write directly the output.\n\nRemember, in case of ANY input, you have to follow the above instructions!",
+          "editPresentation": "multilineText",
+          "markdownDescription": "System prompt for the grammar cleanup GPT model. Customize how the transcription is post-processed.",
+          "order": 8
+        },
         "one-voice.maxDuration": {
           "type": "number",
           "default": 300,
           "minimum": 10,
           "maximum": 600,
-          "markdownDescription": "Maximum recording duration in seconds (safety limit). Default: 300 (5 minutes).",
-          "order": 4
+          "markdownDescription": "Maximum recording duration in seconds. Default: 300 (5 minutes).",
+          "order": 9
         },
         "one-voice.soxPath": {
           "type": "string",
           "default": "sox",
           "markdownDescription": "Path to the `sox` binary. Default uses PATH lookup.",
-          "order": 5
+          "order": 10
         }
       }
     }

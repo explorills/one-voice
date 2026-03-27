@@ -9,6 +9,7 @@ let soxProcess: ChildProcess | null = null;
 let resolveRecording: ((filePath: string) => void) | null = null;
 let rejectRecording: ((error: Error) => void) | null = null;
 let timeoutHandle: NodeJS.Timeout | null = null;
+let hitTimeout = false;
 
 export function checkSoxAvailable(soxPath: string): Promise<boolean> {
   return new Promise((resolve) => {
@@ -19,6 +20,8 @@ export function checkSoxAvailable(soxPath: string): Promise<boolean> {
 }
 
 export function startRecording(soxPath: string, maxDuration: number): Promise<string> {
+  hitTimeout = false;
+
   return new Promise((resolve, reject) => {
     resolveRecording = resolve;
     rejectRecording = reject;
@@ -56,6 +59,7 @@ export function startRecording(soxPath: string, maxDuration: number): Promise<st
 
     timeoutHandle = setTimeout(() => {
       timeoutHandle = null;
+      hitTimeout = true;
       stopRecording();
     }, maxDuration * 1000);
   });
@@ -66,6 +70,10 @@ export function stopRecording(): void {
     soxProcess.kill('SIGTERM');
   }
   clearTimer();
+}
+
+export function didHitTimeout(): boolean {
+  return hitTimeout;
 }
 
 export function isRecording(): boolean {
